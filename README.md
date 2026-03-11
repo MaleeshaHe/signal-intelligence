@@ -1,15 +1,15 @@
-# Signal Intelligence Family
+# Signal Intelligence
 
-Modular signal processing backend built with Node.js and TypeScript.
-Clean `input → service → output` architecture across all signal modules.
+Modular signal processing backend — Node.js + TypeScript.
 
 ---
 
-## Project Overview
+## Branches
 
-This is **Milestone 1** of the OpenStudyGo AI signal layer.
-
-The goal is to validate repeated modular backend work with a thin, clean signal family — where every module follows the same strict architecture pattern.
+| Branch | Content |
+|---|---|
+| `main` | Base signal modules (5 modules) |
+| `feature/rest-api` | REST API layer on top of base modules |
 
 ---
 
@@ -33,17 +33,34 @@ SignalInput  →  Service  →  SignalOutput
 signal-intelligence/
 ├── src/
 │   ├── models/
-│   │   ├── SignalInput.ts            # Shared input interface
-│   │   └── SignalOutput.ts           # Shared output interface
+│   │   ├── SignalInput.ts
+│   │   └── SignalOutput.ts
 │   ├── modules/
 │   │   ├── SignalRegistry/
-│   │   │   └── SignalRegistryService.ts
+│   │   │   ├── SignalRegistryService.ts
+│   │   │   ├── SignalRegistryController.ts
+│   │   │   └── SignalRegistryRoute.ts
 │   │   ├── SignalClassification/
-│   │   │   └── SignalClassificationService.ts
+│   │   │   ├── SignalClassificationService.ts
+│   │   │   ├── SignalClassificationController.ts
+│   │   │   └── SignalClassificationRoute.ts
 │   │   └── SignalPriorityEngine/
-│   │       └── SignalPriorityEngineService.ts
-│   └── demo/
-│       └── demo.ts                   # Execution proof
+│   │       ├── SignalPriorityEngineService.ts
+│   │       ├── SignalPriorityEngineController.ts
+│   │       └── SignalPriorityEngineRoute.ts
+│   ├── db/
+│   │   └── InMemorySignalStore.ts
+│   ├── routes/
+│   │   └── index.ts
+│   ├── middleware/
+│   │   └── error.middleware.ts
+│   ├── utils/
+│   │   └── catchAsync.ts
+│   ├── demo/
+│   │   └── demo.ts
+│   ├── app.ts
+│   └── server.ts
+├── nodemon.json
 ├── package.json
 └── tsconfig.json
 ```
@@ -60,36 +77,34 @@ signal-intelligence/
 
 ---
 
-## Shared Models
+## API Endpoints
 
-### SignalInput
+Base URL: `http://localhost:3000`
 
-```typescript
-export interface SignalInput {
-  id: string;
-  signalType: string;
-  signalCategory: string;
-  signalSource: string;
-  signalValue: string;
-  priorityLevel: number;
-  timestamp: string;
-  version: number;
-  isActive: boolean;
-}
-```
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/health` | Health check |
+| `POST` | `/api/signals/register` | Register a signal |
+| `POST` | `/api/signals/classify` | Classify a signal |
+| `POST` | `/api/signals/prioritize` | Assign priority to a signal |
+| `GET` | `/api/signals` | Get all processed signals |
+| `GET` | `/api/signals/:id` | Get one signal by ID |
 
-### SignalOutput
+---
 
-```typescript
-export interface SignalOutput {
-  id: string;
-  inputSignalId: string;
-  processedBy: string;
-  status: string;
-  result: string;
-  priorityLevel: number;
-  metadata: string[];
-  processedAt: string;
+## Request Body
+
+```json
+{
+  "id": "signal-001",
+  "signalType": "urgency_signal",
+  "signalCategory": "routing",
+  "signalSource": "country_relationship_layer",
+  "signalValue": "medium",
+  "priorityLevel": 4,
+  "timestamp": "2026-03-11T17:00:00.000Z",
+  "version": 1,
+  "isActive": true
 }
 ```
 
@@ -99,16 +114,17 @@ export interface SignalOutput {
 
 - **Runtime:** Node.js
 - **Language:** TypeScript (strict mode)
-- **Execution:** ts-node
+- **Framework:** Express.js
+- **Storage:** In-memory Map store
+- **Security:** Helmet, CORS, Compression
+- **Dev tools:** ts-node, nodemon
 
 ---
 
-## Run the Demo
+## Scripts
 
 ```bash
-npm install
-npm run demo
+npm run dev     # development — auto-restart on file changes
+npm start       # production run
+npm run demo    # run signal family execution demo
 ```
-
----
-
