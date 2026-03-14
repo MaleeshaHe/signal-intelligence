@@ -1,107 +1,54 @@
 # Signal Intelligence Family
 
 Modular signal processing backend built with Node.js and TypeScript.
-Clean `input → service → output` architecture across all signal modules.
+This milestone currently implements 3 core modules and one orchestration flow.
 
----
+## Implemented Scope
 
-## Project Overview
+Only the following modules are implemented in code:
 
-This is **Milestone 1** of the OpenStudyGo AI signal layer.
+1. `SignalRegistry`
+2. `SignalClassification`
+3. `SignalPriorityEngine`
 
-The goal is to validate repeated modular backend work with a thin, clean signal family — where every module follows the same strict architecture pattern.
+An additional orchestration layer is included:
 
----
+- `SignalOrchestrator` (runs modules in sequence)
 
-## Architecture Pattern
+## Processing Flow
 
-Every module follows one rule:
+The demo now executes a real chained pipeline:
 
-```
-SignalInput  →  Service  →  SignalOutput
-```
-
-- **SignalInput** — shared raw signal contract
-- **Service** — single transformation, one responsibility
-- **SignalOutput** — isolated, readable result object
-
----
+`SignalInput -> SignalRegistry -> transformed input -> SignalClassification -> transformed input -> SignalPriorityEngine -> final output`
 
 ## Project Structure
 
-```
+```text
 signal-intelligence/
-├── src/
-│   ├── models/
-│   │   ├── SignalInput.ts            # Shared input interface
-│   │   └── SignalOutput.ts           # Shared output interface
-│   ├── modules/
-│   │   ├── SignalRegistry/
-│   │   │   └── SignalRegistryService.ts
-│   │   ├── SignalClassification/
-│   │   │   └── SignalClassificationService.ts
-│   │   └── SignalPriorityEngine/
-│   │       └── SignalPriorityEngineService.ts
-│   └── demo/
-│       └── demo.ts                   # Execution proof
-├── package.json
-└── tsconfig.json
+|-- src/
+|   |-- models/
+|   |   |-- SignalInput.ts
+|   |   `-- SignalOutput.ts
+|   |-- modules/
+|   |   |-- SignalRegistry/
+|   |   |   `-- SignalRegistryService.ts
+|   |   |-- SignalClassification/
+|   |   |   `-- SignalClassificationService.ts
+|   |   `-- SignalPriorityEngine/
+|   |       `-- SignalPriorityEngineService.ts
+|   |-- orchestrator/
+|   |   `-- SignalOrchestrator.ts
+|   `-- demo/
+|       `-- demo.ts
+|-- package.json
+`-- tsconfig.json
 ```
 
----
+## Logic Notes
 
-## Modules
-
-| # | Module | Responsibility |
-|---|---|---|
-| 1 | `SignalRegistry` | Register and acknowledge incoming signals |
-| 2 | `SignalClassification` | Classify signal as CRITICAL / HIGH / STANDARD / LOW / NOISE |
-| 3 | `SignalPriorityEngine` | Assign priority tier P0\_URGENT through P4\_DEFERRED |
-
----
-
-## Shared Models
-
-### SignalInput
-
-```typescript
-export interface SignalInput {
-  id: string;
-  signalType: string;
-  signalCategory: string;
-  signalSource: string;
-  signalValue: string;
-  priorityLevel: number;
-  timestamp: string;
-  version: number;
-  isActive: boolean;
-}
-```
-
-### SignalOutput
-
-```typescript
-export interface SignalOutput {
-  id: string;
-  inputSignalId: string;
-  processedBy: string;
-  status: string;
-  result: string;
-  priorityLevel: number;
-  metadata: string[];
-  processedAt: string;
-}
-```
-
----
-
-## Stack
-
-- **Runtime:** Node.js
-- **Language:** TypeScript (strict mode)
-- **Execution:** ts-node
-
----
+- Classification now uses multi-factor scoring (priority, value text, category, source, activity, timestamp freshness).
+- Priority assignment now uses combined rules (classification signal, escalation hints, source/category signals, freshness/activity guards).
+- Registry adds metadata used by downstream stages (including registry risk score).
 
 ## Run the Demo
 
@@ -109,6 +56,3 @@ export interface SignalOutput {
 npm install
 npm run demo
 ```
-
----
-
