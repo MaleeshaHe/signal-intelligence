@@ -1,7 +1,6 @@
 import { SignalInput } from '../../models/SignalInput';
 import { SignalOutput } from '../../models/SignalOutput';
-
-type ClassificationLabel = 'CRITICAL' | 'HIGH' | 'STANDARD' | 'LOW' | 'NOISE';
+import { ClassificationDecision, ClassificationLabel } from './types/Classification.types';
 
 const HIGH_IMPACT_CATEGORIES = new Set(['security', 'routing', 'incident']);
 const TRUSTED_HIGH_IMPACT_SOURCES = ['country_relationship_layer', 'threat_intel'];
@@ -41,18 +40,21 @@ function classifySignal(score: number): ClassificationLabel {
 export class SignalClassificationService {
   process(signal: SignalInput): SignalOutput {
     const score = computeClassificationScore(signal);
-    const label: ClassificationLabel = classifySignal(score);
+    const decision: ClassificationDecision = {
+      score,
+      label: classifySignal(score),
+    };
 
     return {
       id: crypto.randomUUID(),
       inputSignalId: signal.id,
       processedBy: 'SignalClassification',
       status: 'CLASSIFIED',
-      result: `Signal [${signal.signalType}] classified as [${label}].`,
+      result: `Signal [${signal.signalType}] classified as [${decision.label}].`,
       priorityLevel: signal.priorityLevel,
       metadata: [
-        `classification_score:${score}`,
-        `classification_label:${label}`,
+        `classification_score:${decision.score}`,
+        `classification_label:${decision.label}`,
         `category:${signal.signalCategory}`,
         `source:${signal.signalSource}`,
         `active:${signal.isActive}`,

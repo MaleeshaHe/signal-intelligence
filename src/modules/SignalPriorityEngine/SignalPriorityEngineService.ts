@@ -1,7 +1,6 @@
 import { SignalInput } from '../../models/SignalInput';
 import { SignalOutput } from '../../models/SignalOutput';
-
-type PriorityTier = 'P0_URGENT' | 'P1_HIGH' | 'P2_MEDIUM' | 'P3_LOW' | 'P4_DEFERRED';
+import { PriorityDecision, PriorityTier } from './types/Priority.types';
 
 function parseClassificationLabel(signalValue: string): string {
   const marker = signalValue.match(/classification:(CRITICAL|HIGH|STANDARD|LOW|NOISE)/i);
@@ -49,7 +48,10 @@ function computePriorityTier(signal: SignalInput, score: number): PriorityTier {
 export class SignalPriorityEngineService {
   process(signal: SignalInput): SignalOutput {
     const score = computePriorityScore(signal);
-    const tier: PriorityTier = computePriorityTier(signal, score);
+    const decision: PriorityDecision = {
+      score,
+      tier: computePriorityTier(signal, score),
+    };
     const classificationLabel = parseClassificationLabel(signal.signalValue);
 
     return {
@@ -57,11 +59,11 @@ export class SignalPriorityEngineService {
       inputSignalId: signal.id,
       processedBy: 'SignalPriorityEngine',
       status: 'PRIORITY_ASSIGNED',
-      result: `Signal [${signal.signalType}] assigned priority tier [${tier}].`,
+      result: `Signal [${signal.signalType}] assigned priority tier [${decision.tier}].`,
       priorityLevel: signal.priorityLevel,
       metadata: [
-        `priority_score:${score}`,
-        `priority_tier:${tier}`,
+        `priority_score:${decision.score}`,
+        `priority_tier:${decision.tier}`,
         `classification:${classificationLabel}`,
         `is_active:${signal.isActive}`,
         `raw_priority:${signal.priorityLevel}`,
