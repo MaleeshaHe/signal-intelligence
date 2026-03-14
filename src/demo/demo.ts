@@ -1,15 +1,12 @@
 import { SignalInput } from '../models/SignalInput';
-import { SignalRegistryService } from '../modules/SignalRegistry/SignalRegistryService';
-import { SignalClassificationService } from '../modules/SignalClassification/SignalClassificationService';
-import { SignalPriorityEngineService } from '../modules/SignalPriorityEngine/SignalPriorityEngineService';
+import { SignalOrchestrator } from '../orchestrator/SignalOrchestrator';
 
-// ─── Sample Signal Input ──────────────────────────────────
 const sampleSignal: SignalInput = {
   id: crypto.randomUUID(),
   signalType: 'urgency_signal',
-  signalCategory: 'routing',
+  signalCategory: 'security',
   signalSource: 'country_relationship_layer',
-  signalValue: 'medium',
+  signalValue: 'high, immediate attention',
   priorityLevel: 4,
   timestamp: new Date().toISOString(),
   version: 1,
@@ -17,28 +14,27 @@ const sampleSignal: SignalInput = {
 };
 
 function separator(title: string): void {
-  console.log('\n' + '─'.repeat(60));
+  console.log('\n' + '-'.repeat(60));
   console.log(`  ${title}`);
-  console.log('─'.repeat(60));
+  console.log('-'.repeat(60));
 }
 
-// ─── INPUT ────────────────────────────────────────────────
-separator('INPUT — SignalInput');
+const orchestrator = new SignalOrchestrator();
+const pipeline = orchestrator.run(sampleSignal);
+
+separator('INPUT -> SignalInput');
 console.log(sampleSignal);
 
-// ─── MODULE 1: SignalRegistry ─────────────────────────────
-separator('MODULE 1 — SignalRegistry');
-const registry = new SignalRegistryService();
-console.log(registry.process(sampleSignal));
+separator('MODULE 1 -> SignalRegistry');
+console.log(pipeline.registryOutput);
 
-// ─── MODULE 2: SignalClassification ───────────────────────
-separator('MODULE 2 — SignalClassification');
-const classification = new SignalClassificationService();
-console.log(classification.process(sampleSignal));
+separator('TRANSFORMED INPUT -> SignalClassification');
+console.log(pipeline.classificationInput);
+console.log(pipeline.classificationOutput);
 
-// ─── MODULE 3: SignalPriorityEngine ───────────────────────
-separator('MODULE 3 — SignalPriorityEngine');
-const priority = new SignalPriorityEngineService();
-console.log(priority.process(sampleSignal));
+separator('TRANSFORMED INPUT -> SignalPriorityEngine');
+console.log(pipeline.priorityInput);
+console.log(pipeline.priorityOutput);
 
-separator('DEMO COMPLETE');
+separator('FINAL OUTPUT');
+console.log(pipeline.finalOutput);

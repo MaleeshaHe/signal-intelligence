@@ -1,15 +1,15 @@
 # Signal Intelligence
 
-Modular signal processing backend — Node.js + TypeScript.
+Modular signal processing backend built with Node.js and TypeScript.
+Clean `input → service → output` architecture across all signal modules.
 
 ---
 
-## Branches
+## Project Overview
 
-| Branch | Content |
-|---|---|
-| `main` | Base signal modules (5 modules) |
-| `feature/rest-api` | REST API layer on top of base modules |
+This is **Milestone 1** of the OpenStudyGo AI signal layer.
+
+The goal is to validate repeated modular backend work with a thin, clean signal family — where every module follows the same strict architecture pattern.
 
 ---
 
@@ -17,50 +17,25 @@ Modular signal processing backend — Node.js + TypeScript.
 
 Every module follows one rule:
 
-```
-SignalInput  →  Service  →  SignalOutput
-```
-
-- **SignalInput** — shared raw signal contract
-- **Service** — single transformation, one responsibility
-- **SignalOutput** — isolated, readable result object
-
----
+`SignalInput -> SignalRegistry -> transformed input -> SignalClassification -> transformed input -> SignalPriorityEngine -> final output`
 
 ## Project Structure
 
-```
+```text
 signal-intelligence/
 ├── src/
 │   ├── models/
-│   │   ├── SignalInput.ts
-│   │   └── SignalOutput.ts
+│   │   ├── SignalInput.ts            # Shared input interface
+│   │   └── SignalOutput.ts           # Shared output interface
 │   ├── modules/
 │   │   ├── SignalRegistry/
-│   │   │   ├── SignalRegistryService.ts
-│   │   │   ├── SignalRegistryController.ts
-│   │   │   └── SignalRegistryRoute.ts
+│   │   │   └── SignalRegistryService.ts
 │   │   ├── SignalClassification/
-│   │   │   ├── SignalClassificationService.ts
-│   │   │   ├── SignalClassificationController.ts
-│   │   │   └── SignalClassificationRoute.ts
+│   │   │   └── SignalClassificationService.ts
 │   │   └── SignalPriorityEngine/
-│   │       ├── SignalPriorityEngineService.ts
-│   │       ├── SignalPriorityEngineController.ts
-│   │       └── SignalPriorityEngineRoute.ts
-│   ├── db/
-│   │   └── InMemorySignalStore.ts
-│   ├── routes/
-│   │   └── index.ts
-│   ├── middleware/
-│   │   └── error.middleware.ts
-│   ├── utils/
-│   │   └── catchAsync.ts
-│   ├── demo/
-│   │   └── demo.ts
-│   ├── app.ts
-│   └── server.ts
-├── nodemon.json
+│   │       └── SignalPriorityEngineService.ts
+│   └── demo/
+│       └── demo.ts                   # Execution proof
 ├── package.json
 └── tsconfig.json
 ```
@@ -77,34 +52,36 @@ signal-intelligence/
 
 ---
 
-## API Endpoints
+## Shared Models
 
-Base URL: `http://localhost:3000`
+### SignalInput
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/health` | Health check |
-| `POST` | `/api/signals/register` | Register a signal |
-| `POST` | `/api/signals/classify` | Classify a signal |
-| `POST` | `/api/signals/prioritize` | Assign priority to a signal |
-| `GET` | `/api/signals` | Get all processed signals |
-| `GET` | `/api/signals/:id` | Get one signal by ID |
+```typescript
+export interface SignalInput {
+  id: string;
+  signalType: string;
+  signalCategory: string;
+  signalSource: string;
+  signalValue: string;
+  priorityLevel: number;
+  timestamp: string;
+  version: number;
+  isActive: boolean;
+}
+```
 
----
+### SignalOutput
 
-## Request Body
-
-```json
-{
-  "id": "signal-001",
-  "signalType": "urgency_signal",
-  "signalCategory": "routing",
-  "signalSource": "country_relationship_layer",
-  "signalValue": "medium",
-  "priorityLevel": 4,
-  "timestamp": "2026-03-11T17:00:00.000Z",
-  "version": 1,
-  "isActive": true
+```typescript
+export interface SignalOutput {
+  id: string;
+  inputSignalId: string;
+  processedBy: string;
+  status: string;
+  result: string;
+  priorityLevel: number;
+  metadata: string[];
+  processedAt: string;
 }
 ```
 
@@ -114,10 +91,7 @@ Base URL: `http://localhost:3000`
 
 - **Runtime:** Node.js
 - **Language:** TypeScript (strict mode)
-- **Framework:** Express.js
-- **Storage:** In-memory Map store
-- **Security:** Helmet, CORS, Compression
-- **Dev tools:** ts-node, nodemon
+- **Execution:** ts-node
 
 ---
 
