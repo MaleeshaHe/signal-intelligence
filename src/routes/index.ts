@@ -3,6 +3,7 @@ import { InMemorySignalStore } from '../db/InMemorySignalStore';
 import { SignalRegistryRoute } from '../modules/SignalRegistry/SignalRegistryRoute';
 import { SignalClassificationRoute } from '../modules/SignalClassification/SignalClassificationRoute';
 import { SignalPriorityEngineRoute } from '../modules/SignalPriorityEngine/SignalPriorityEngineRoute';
+import { SignalOrchestratorRoute } from '../orchestrator/SignalOrchestratorRoute';
 
 export const router = express.Router();
 
@@ -27,6 +28,10 @@ const defaultRoutes: RouteConfig[] = [
       {
         path: '/prioritize',
         route: SignalPriorityEngineRoute,
+      },
+      {
+        path: '/process',
+        route: SignalOrchestratorRoute,
       },
     ],
   },
